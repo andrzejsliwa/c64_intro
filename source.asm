@@ -22,12 +22,6 @@
     ; representing a BASIC line number
     .word ss,2010
 
-    .null $9e,^start
-
-    ; .null: Include constants and
-    ;        strings, adds a null at
-    ;        the end
-    ;
     ; $9e represents the SYS command
     ;
     ; ^start is the address of start
@@ -35,6 +29,11 @@
     ;
     ; .null adds null ($00) at the end
     ; as and end of BASIC line marker
+
+    .null $9e,^start
+
+
+
 
 ss
     .word 0 ; BASIC end marker
