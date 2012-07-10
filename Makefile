@@ -23,6 +23,10 @@ EXOMIZER          = \
 	$(shell which exomizer || echo $(BINARY_DIR)/exomizer)
 EXOMIZER_OPTIONS = sfx basic
 
+# Petcom - source converter
+PETCOM          = \
+	$(shell which exomizer || echo $(BINARY_DIR)/petcom)
+
 all: clean diskimage
 
 prepare:
@@ -32,21 +36,23 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 build: prepare
-	$(TASS) $(TASS_OPTIONS) $(SOURCE_DIR)/source.asm \
+	$(TASS) $(TASS_OPTIONS) $(SOURCE_DIR)/$(NAME).asm \
 		-o $(BUILD_DIR)/output.prg \
 		-L $(BUILD_DIR)/output.deasm \
 		-l $(BUILD_DIR)/output.lbl
 	$(EXOMIZER) $(EXOMIZER_OPTIONS) \
 		$(BUILD_DIR)/output.prg \
-		-n -o $(BUILD_DIR)/intro.prg
+		-n -o $(BUILD_DIR)/$(NAME).prg
+	$(PETCOM) - $(SOURCE_DIR)/$(NAME).asm > $(BUILD_DIR)/$(NAME).s
 
 diskimage: build
-	$(C1541) -format intro,DF  d64 $(BUILD_DIR)/intro.d64 > /dev/null
+	$(C1541) -format $(NAME),DF  d64 $(BUILD_DIR)/$(NAME).d64 > /dev/null
 	$(C1541) \
-		-attach $(BUILD_DIR)/intro.d64 \
-		-write $(BUILD_DIR)/intro.prg intro
+		-attach $(BUILD_DIR)/$(NAME).d64 \
+		-write $(BUILD_DIR)/$(NAME).prg $(NAME) \
+		-write $(BUILD_DIR)/$(NAME).s $(NAME).s
 
 run: all
 	killall x64 || true
-	@$(VICE) -moncommands $(BUILD_DIR)/output.lbl $(BUILD_DIR)/intro.d64:intro &
+	@$(VICE) -moncommands $(BUILD_DIR)/output.lbl $(BUILD_DIR)/$(NAME).d64:$(NAME) &
 
