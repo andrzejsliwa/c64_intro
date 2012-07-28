@@ -59,4 +59,4 @@ read    lda msg, x
 
 end     rts
 
-msg     .null "helo 2 HELLO WORLD !!!"
+msg     .null "helo 3 HELLO WORLD !!!"
