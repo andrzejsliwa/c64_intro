@@ -5,8 +5,6 @@ chrout = $ffd2
 
 ; a simple "hello world" program
 ; with a BASIC header
-; written for 64tass compiler
-
 ; creates first a following BASIC
 ; line
 ;
@@ -29,17 +27,11 @@ chrout = $ffd2
 				.word ss, 2010
 
 ; $9e represents the SYS command
-;
-; ^start is the address of start
-; label as a decimal string
-;
+				.byte $9e
+
 ; .null adds null ($00) at the end
 ; as and end of BASIC line marker
-
-				.byte $9e
 				.null " 4096"
-
-
 ss
 				.word 0 ; BASIC end marker
 
@@ -59,4 +51,4 @@ read    lda msg, x
 
 end     rts
 
-msg     .null "helo 3 HELLO WORLD !!!"
+msg     .null "hello world !!!"
