@@ -1,31 +1,34 @@
-NAME       = intro
+NAME= intro
 
-# Directories
-BINARY_DIR = bin
-SOURCE_DIR = src
-BUILD_DIR  = build
+BINARY_DIR= bin
+SOURCE_DIR= src
+BUILD_DIR= build
 
-# TASS - turbo assembler
-TASS             = \
-	$(shell which 64tass || echo $(BINARY_DIR)/64tass)
-TASS_OPTIONS     = -C
+# Assembler...
+ASSEMBLER = \
+	$(shell which 64tass || \
+		echo $(BINARY_DIR)/64tass)
+ASSEMBLER_OPTIONS = -C
 
-# Vice - emulator
-VICE             = \
-	$(shell which x64 || echo /Applications/x64.app/Contents/MacOS/x64)
+# Emulator...
+EMULATOR = \
+	$(shell which x64 || \
+		echo /Applications/x64.app/Contents/MacOS/x64)
 
-# C1541 - disk creator
-C1541            = \
-	$(shell which c1541 || echo $(BINARY_DIR)/c1541)
+# Disk creator...
+DISK_CREATOR = \
+	$(shell which c1541 || \
+		echo $(BINARY_DIR)/c1541)
 
-# Exomizer - packer/compressor
-EXOMIZER          = \
-	$(shell which exomizer || echo $(BINARY_DIR)/exomizer)
-EXOMIZER_OPTIONS = sfx basic
+# Packer / compressor...
+PACKER = \
+	$(shell which exomizer || \
+		echo $(BINARY_DIR)/exomizer)
+PACKER_OPTIONS = sfx basic
 
-# Petcom - source converter
-PETCOM          = \
-	$(shell which exomizer || echo $(BINARY_DIR)/petcom)
+CONVERTER = \
+	$(shell which exomizer || \
+		echo $(BINARY_DIR)/petcom)
 
 all: clean diskimage
 
@@ -36,23 +39,31 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 build: prepare
-	$(TASS) $(TASS_OPTIONS) $(SOURCE_DIR)/$(NAME).asm \
+	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) \
+		$(SOURCE_DIR)/$(NAME).asm \
 		-o $(BUILD_DIR)/output.prg \
 		-L $(BUILD_DIR)/output.deasm \
 		-l $(BUILD_DIR)/output.lbl
-	$(EXOMIZER) $(EXOMIZER_OPTIONS) \
+	$(PACKER) $(PACKER_OPTIONS) \
 		$(BUILD_DIR)/output.prg \
-		-n -o $(BUILD_DIR)/$(NAME).prg
-	$(PETCOM) - $(SOURCE_DIR)/$(NAME).asm > $(BUILD_DIR)/$(NAME).s
+			-n -o $(BUILD_DIR)/$(NAME).prg
+	$(CONVERTER) - \
+		$(SOURCE_DIR)/$(NAME).asm > \
+		$(BUILD_DIR)/$(NAME).s
 
 diskimage: build
-	$(C1541) -format $(NAME),DF  d64 $(BUILD_DIR)/$(NAME).d64 > /dev/null
-	$(C1541) \
+	$(DISK_CREATOR) -format $(NAME),DF \
+		d64 $(BUILD_DIR)/$(NAME).d64 \
+			> /dev/null
+	$(DISK_CREATOR) \
 		-attach $(BUILD_DIR)/$(NAME).d64 \
-		-write $(BUILD_DIR)/$(NAME).prg $(NAME) \
-		-write $(BUILD_DIR)/$(NAME).s $(NAME).s
+		-write $(BUILD_DIR)/$(NAME).prg \
+			$(NAME) \
+		-write $(BUILD_DIR)/$(NAME).s \
+			$(NAME).s
 
 run: all
 	killall x64 || true
-	@$(VICE) -moncommands $(BUILD_DIR)/output.lbl $(BUILD_DIR)/$(NAME).d64:$(NAME) &
-
+	@$(EMULATOR) -moncommands \
+		$(BUILD_DIR)/output.lbl \
+		$(BUILD_DIR)/$(NAME).d64:$(NAME) &
