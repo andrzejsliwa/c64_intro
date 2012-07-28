@@ -18,7 +18,7 @@ chrout = $ffd2
 ; $0800 to $9FFF is reserved for
 ; BASIC programs
 
-        *=$0801
+				*=$0801
 
 ; .word:    Include 16bit unsigned
 ; word constants
@@ -26,7 +26,7 @@ chrout = $ffd2
 ; the following includes the address
 ; of label ss and the string 2010
 ; representing a BASIC line number
-        .word ss,2010
+				.word ss, 2010
 
 ; $9e represents the SYS command
 ;
@@ -36,26 +36,27 @@ chrout = $ffd2
 ; .null adds null ($00) at the end
 ; as and end of BASIC line marker
 
-        .null $9e,^start
+				.byte $9e
+				.null " 4096"
 
 
 ss
-        .word 0 ; BASIC end marker
+				.word 0 ; BASIC end marker
 
 ; actual program starts from $1000
 ; (SYS 4096)
-        *= $1000
+				*= $1000
 
 start   jsr clear
-        ldx #0
+				ldx #0
 
 read    lda msg, x
-        cmp #0
-        beq end
-        jsr chrout
-        inx
-        jmp read
+				cmp #0
+				beq end
+				jsr chrout
+				inx
+				jmp read
 
 end     rts
 
-msg     .null "HELLO WORLD !!!"
+msg     .null "helo 2 HELLO WORLD !!!"

@@ -3,12 +3,12 @@ NAME= intro
 BINARY_DIR= bin
 SOURCE_DIR= src
 BUILD_DIR= build
+TOOLS_DIR= tools/catridges
 
 # Assembler...
 ASSEMBLER = \
-	$(shell which 64tass || \
-		echo $(BINARY_DIR)/64tass)
-ASSEMBLER_OPTIONS = -C
+	$(shell which tmpx || \
+		echo $(BINARY_DIR)/tmpx)
 
 # Emulator...
 EMULATOR = \
@@ -39,11 +39,10 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 build: prepare
-	$(ASSEMBLER) $(ASSEMBLER_OPTIONS) \
-		$(SOURCE_DIR)/$(NAME).asm \
+	$(ASSEMBLER) \
+		-i $(SOURCE_DIR)/$(NAME).asm \
 		-o $(BUILD_DIR)/output.prg \
-		-L $(BUILD_DIR)/output.deasm \
-		-l $(BUILD_DIR)/output.lbl
+		-l $(BUILD_DIR)/output.deasm
 	$(PACKER) $(PACKER_OPTIONS) \
 		$(BUILD_DIR)/output.prg \
 			-n -o $(BUILD_DIR)/$(NAME).prg
@@ -63,7 +62,7 @@ diskimage: build
 			$(NAME).s
 
 run: all
-	killall x64 || true
-	@$(EMULATOR) -moncommands \
-		$(BUILD_DIR)/output.lbl \
-		$(BUILD_DIR)/$(NAME).d64:$(NAME) &
+	killall x64  >/dev/null 2>&1 || true
+	@$(EMULATOR) -reu -reusize 16384 -reuimage ./reuimage -cartrr $(TOOLS_DIR)/rr38p-tmp12.bin \
+		$(BUILD_DIR)/$(NAME).d64:$(NAME)  >/dev/null 2>&1 &
+	@echo "READY. ;)"
