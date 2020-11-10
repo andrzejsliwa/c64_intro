@@ -12,8 +12,8 @@ ASSEMBLER = \
 
 # Emulator...
 EMULATOR = \
-	$(shell which x64 || \
-		echo /Applications/x64.app/Contents/MacOS/x64)
+	$(shell which x64sc || \
+		echo /Applications/x64sc.app/Contents/MacOS/x64sc)
 
 # Disk creator...
 DISK_CREATOR = \
@@ -27,7 +27,7 @@ PACKER = \
 PACKER_OPTIONS = sfx basic
 
 CONVERTER = \
-	$(shell which exomizer || \
+	$(shell which petcom || \
 		echo $(BINARY_DIR)/petcom)
 
 all: clean diskimage
@@ -59,10 +59,10 @@ diskimage: build
 		-write $(BUILD_DIR)/$(NAME).prg \
 			$(NAME) \
 		-write $(BUILD_DIR)/$(NAME).s \
-			$(NAME).s
+			"$(NAME).s,s"
 
 run: all
-	killall x64  >/dev/null 2>&1 || true
-	@$(EMULATOR) -reu -reusize 16384 -reuimage ./reuimage -cartrr $(TOOLS_DIR)/rr38p-tmp12.bin \
-		$(BUILD_DIR)/$(NAME).d64:$(NAME)  >/dev/null 2>&1 &
+	killall x64sc >/dev/null 2>&1 || true
+	$(EMULATOR) -reu -reusize 512 -cartrr $(TOOLS_DIR)/rr38p-tmp12reu.bin \
+		$(BUILD_DIR)/$(NAME).d64:$(NAME) # >/dev/null 2>&1 &
 	@echo "READY. ;)"
